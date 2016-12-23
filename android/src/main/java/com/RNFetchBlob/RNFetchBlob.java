@@ -2,6 +2,7 @@ package com.RNFetchBlob;
 
 import android.content.Intent;
 import android.net.Uri;
+import android.support.v4.content.FileProvider;
 
 import com.RNFetchBlob.Utils.RNFBCookieJar;
 import com.facebook.react.bridge.Callback;
@@ -14,6 +15,7 @@ import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.WritableArray;
 
+import java.io.File;
 import java.util.Map;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -57,11 +59,22 @@ public class RNFetchBlob extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void actionViewIntent(String path, String mime, final Promise promise) {
+    public void actionViewIntent(String path, String mime, String androidURIAuthority, final Promise promise) {
         try {
+            boolean useFileProvider = androidURIAuthority != null;
+            Uri fileUri;
+            if (useFileProvider) {
+                File file = new File(path);
+                fileUri = FileProvider.getUriForFile(RCTContext.getCurrentActivity(), androidURIAuthority, file);
+            } else {
+                fileUri = Uri.parse("file://" + path);
+            }
             Intent intent= new Intent(Intent.ACTION_VIEW)
-                    .setDataAndType(Uri.parse("file://" + path), mime);
+                    .setDataAndType(fileUri, mime);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            if (useFileProvider) {
+                intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            }
             this.getReactApplicationContext().startActivity(intent);
             ActionViewVisible = true;
 

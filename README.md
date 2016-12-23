@@ -563,6 +563,12 @@ Or show an image in image viewer
       android.actionViewIntent(PATH_OF_IMG, 'image/png')
 ```
 
+For apps targeting Android 7.x, because of the behavior changes about [Sharing Files Between Apps](https://developer.android.com/about/versions/nougat/android-7.0-changes.html#sharing-files), you need to use a [FileProvider](https://developer.android.com/reference/android/support/v4/content/FileProvider.html) and specify the related URI authority when using `actionViewIntent`:
+
+```js
+      android.actionViewIntent(PATH_OF_FILE, FILE_MIME_TYPE, ANDROID_URI_AUTHORITY)
+```
+
 ## File System
 
 ### File Access
